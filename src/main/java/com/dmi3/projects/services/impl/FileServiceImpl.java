@@ -66,7 +66,6 @@ public class FileServiceImpl implements FileService
         {
             String textFromHtmlPage = parseHtmlFile(file);
             saveFile(textFromHtmlPage, file, false);
-            //todo:rename file extension
         }
 
         return file;
@@ -99,7 +98,7 @@ public class FileServiceImpl implements FileService
         return null;
     }
 
-    private void saveFile(String text, File file, boolean append)
+    public void saveFile(String text, File file, boolean append)
     {
         try
         {

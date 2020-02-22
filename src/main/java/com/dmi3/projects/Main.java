@@ -1,6 +1,7 @@
 package com.dmi3.projects;
 
-import com.dmi3.projects.gui.ProjectGui;
+import com.dmi3.projects.gui.api.ProjectGui;
+import com.dmi3.projects.gui.impl.ProjectGuiImpl;
 import com.dmi3.projects.services.api.BasicWebService;
 import com.dmi3.projects.services.api.FileService;
 import com.dmi3.projects.services.api.ProjectConfigurationService;
@@ -17,8 +18,8 @@ public class Main
         ProjectConfigurationService configService = new ProjectConfigurationServiceImpl();
         TextProcessingService textProcessingService = new TextProcessingServiceImpl(configService.getConfig());
         FileService fileService = new FileServiceImpl(configService.getConfig());
-        BasicWebService basicWebService = new BasicWebServicesImpl(fileService, textProcessingService);
-        ProjectGui projectGui = new ProjectGui(basicWebService);
-        projectGui.showGui();
+        BasicWebService basicWebService = new BasicWebServicesImpl(fileService, textProcessingService, configService.getConfig());
+        ProjectGui projectGui = new ProjectGuiImpl(basicWebService);
+        projectGui.run();
     }
 }

@@ -7,4 +7,6 @@ import java.io.File;
 public interface FileService
 {
     File downloadPage(String url) throws FileServiceException;
+
+    void saveFile(String text, File file, boolean append);
 }
