@@ -1,14 +1,19 @@
 package com.dmi3.projects.gui;
 
+import com.dmi3.projects.services.api.BasicWebService;
+
+import java.util.Map;
 import java.util.Scanner;
 
 public class ProjectGui
 {
     private final Scanner scanner;
+    private final BasicWebService basicWebService;
     private boolean activeGui;
 
-    public ProjectGui()
+    public ProjectGui(BasicWebService basicWebService)
     {
+        this.basicWebService = basicWebService;
         this.activeGui = false;
         this.scanner = new Scanner(System.in);
     }
@@ -27,14 +32,16 @@ public class ProjectGui
                 case 1:
                 {
                     System.out.println("Please type url of page");
-                    String urlName = scanner.nextLine();
-
+                    String url = scanner.next();
+                    Map<String, Integer> result = basicWebService.parseWebPage(url);
+                    System.out.println("Result:");
+                    result.keySet().forEach(word -> System.out.println(word + " - " + result.get(word)));
                 }
                 break;
 
-                case 2:
+                case 0:
                     setActiveGui(false);
-                break;
+                    break;
             }
         }
         while (isActiveGui());

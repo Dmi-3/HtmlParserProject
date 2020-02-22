@@ -1,0 +1,4 @@
+config.delimiters =  [' ', ',', '.', '!', '?', '"', ';', ':', '[', ']', '(', ')','\n', '\r', '\t']
+config.onlyTextFromHtml = true
+config.parsedPageFilePath = Test.html
+config.resultFilePath = TestResult.txt
