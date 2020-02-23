@@ -9,6 +9,5 @@ public class Main
     public static void main(String[] args)
     {
         new ProjectGuiImpl().run();
-        System.out.println(new File("E:\\app\\test Files\\TestFile.html").exists());
     }
 }
