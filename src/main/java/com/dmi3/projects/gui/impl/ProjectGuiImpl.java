@@ -42,6 +42,7 @@ public class ProjectGuiImpl implements ProjectGui
             while (intOption == null)
             {
                 intOption = askInt(scanner);
+                scanner.nextLine();
             }
             switch (intOption)
             {
@@ -68,11 +69,10 @@ public class ProjectGuiImpl implements ProjectGui
     private void processPage(Scanner scanner)
     {
         System.out.println("Please type url of page");
-        String url = scanner.next();
+        String url = scanner.nextLine();
         while (!urlValidator.isValid(url))
         {
             System.out.println("Please write valid url (example: https://www.simbirsoft.com)");
-            scanner.nextLine();
             url = scanner.next();
         }
         try
@@ -89,7 +89,7 @@ public class ProjectGuiImpl implements ProjectGui
     private void processFile(Scanner scanner)
     {
         System.out.println("Please type path to file");
-        String filePath = scanner.next();
+        String filePath = scanner.nextLine();
         File file = new File(filePath);
         if (!file.exists())
         {
@@ -108,6 +108,7 @@ public class ProjectGuiImpl implements ProjectGui
         while (booleanOption == null)
         {
             booleanOption = askBoolean(scanner);
+            scanner.nextLine();
         }
         if (booleanOption)
         {
@@ -151,7 +152,6 @@ public class ProjectGuiImpl implements ProjectGui
         catch (InputMismatchException ex)
         {
             System.out.println("Please write true/false value");
-            scanner.nextLine();
         }
 
         return null;

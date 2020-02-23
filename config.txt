@@ -2,7 +2,7 @@
 delimiters =  [' ', ',', '.', '!', '?', '"', ';', ':', '[', ']', '(', ')','\\n', '\\r', '\\t']
 
 # If this true, after download page, it will be parsed to text user see, else service will be working only with html
-onlyTextFromHtml = false
+onlyTextFromHtml = true
 
 # Path to file where downloaded and processing page will be saved
 parsedPageFilePath = downloadPage.txt
