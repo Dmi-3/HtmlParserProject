@@ -2,7 +2,7 @@ package com.dmi3.projects.dto;
 
 import java.util.Collection;
 
-public class ConfigurationDto implements Configuration
+public class ConfigurationDto
 {
     private Collection<String> delimiters;
     private boolean onlyTextFromHtml;

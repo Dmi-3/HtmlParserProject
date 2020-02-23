@@ -1,6 +1,6 @@
 package com.dmi3.projects.services.impl;
 
-import com.dmi3.projects.dto.Configuration;
+import com.dmi3.projects.dto.ConfigurationDto;
 import com.dmi3.projects.exceptions.FileServiceException;
 import com.dmi3.projects.services.api.FileService;
 import org.apache.commons.io.FileUtils;
@@ -21,9 +21,9 @@ import java.util.Collection;
 public class FileServiceImpl implements FileService
 {
     private static final Logger LOG = Logger.getLogger(FileServiceImpl.class);
-    private final Configuration config;
+    private final ConfigurationDto config;
 
-    public FileServiceImpl(Configuration config)
+    public FileServiceImpl(ConfigurationDto config)
     {
         this.config = config;
     }
@@ -57,8 +57,9 @@ public class FileServiceImpl implements FileService
         }
         catch (IOException ex)
         {
-            LOG.error("Error occurred during download page", ex);
-            throw new FileServiceException("Error occurred during download page", ex);
+            String errorMessage = "Error occurred during download page";
+            LOG.error(errorMessage, ex);
+            throw new FileServiceException(errorMessage, ex);
         }
 
         boolean onlyTextFromHtml = config.isOnlyTextFromHtml();
@@ -81,11 +82,12 @@ public class FileServiceImpl implements FileService
 
         Collection<Element> elements = document.getAllElements();
         StringBuilder stringBuilder = new StringBuilder();
-        elements.forEach(element -> stringBuilder.append(element.text()));
+        elements.stream().filter(element -> element.children().size() == 0 && element.hasText())
+                .forEach(element -> stringBuilder.append(StringUtils.LF).append(element.text()));
         return stringBuilder.toString();
     }
 
-    private Document getDomContentFromFile(File file)
+    private Document getDomContentFromFile(File file) throws FileServiceException
     {
         try
         {
@@ -93,9 +95,10 @@ public class FileServiceImpl implements FileService
         }
         catch (IOException ex)
         {
-            LOG.error("Error occurred during reading local file: " + file.getPath(), ex);
+            String errorMessage = "Error occurred during reading local file: " + file.getPath();
+            LOG.error(errorMessage, ex);
+            throw new FileServiceException(errorMessage, ex);
         }
-        return null;
     }
 
     public void saveFile(String text, File file, boolean append)
@@ -107,8 +110,9 @@ public class FileServiceImpl implements FileService
         }
         catch (IOException ex)
         {
-            LOG.error("Error occurred during saving content to file", ex);
-            throw new FileServiceException("Error occurred during saving content to file", ex);
+            String errorMessage = "File was not save. Error occurred during saving content to file";
+            LOG.error(errorMessage, ex);
+            throw new FileServiceException(errorMessage, ex);
         }
     }
 }

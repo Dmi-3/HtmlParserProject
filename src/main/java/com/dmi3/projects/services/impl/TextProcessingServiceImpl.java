@@ -1,6 +1,6 @@
 package com.dmi3.projects.services.impl;
 
-import com.dmi3.projects.dto.Configuration;
+import com.dmi3.projects.dto.ConfigurationDto;
 import com.dmi3.projects.exceptions.TextProcessingException;
 import com.dmi3.projects.services.api.TextProcessingService;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 public class TextProcessingServiceImpl implements TextProcessingService
 {
     private static final Logger LOG = Logger.getLogger(TextProcessingServiceImpl.class);
-    private final Configuration config;
+    private final ConfigurationDto config;
 
-    public TextProcessingServiceImpl(Configuration config)
+    public TextProcessingServiceImpl(ConfigurationDto config)
     {
         this.config = config;
     }
@@ -72,7 +72,7 @@ public class TextProcessingServiceImpl implements TextProcessingService
         }
         catch (IOException ex)
         {
-            String message = "Error occured during processing text from file";
+            String message = "Error occurred during processing text from file";
             LOG.error(message, ex);
             throw new TextProcessingException(message, ex);
         }

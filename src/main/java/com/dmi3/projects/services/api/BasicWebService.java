@@ -4,6 +4,6 @@ import java.util.Map;
 
 public interface BasicWebService
 {
-    Map<String, Integer> parseWebPage(String url);
+    Map<String, Integer> parseWebPage(String url) ;
     void saveResultToFile(Map<String, Integer> result);
 }

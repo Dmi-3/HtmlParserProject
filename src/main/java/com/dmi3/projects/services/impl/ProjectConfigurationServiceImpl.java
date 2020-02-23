@@ -1,32 +1,33 @@
 package com.dmi3.projects.services.impl;
 
-import com.dmi3.projects.dto.Configuration;
 import com.dmi3.projects.dto.ConfigurationDto;
 import com.dmi3.projects.exceptions.ProjectConfigurationException;
 import com.dmi3.projects.services.api.ProjectConfigurationService;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ProjectConfigurationServiceImpl implements ProjectConfigurationService
 {
     private static final Logger LOG = Logger.getLogger(ProjectConfigurationServiceImpl.class);
-    private static final String SPLIT_CONFIGS_REGEX = "\\s*=\\s*";
-    private static final Pattern DELIMITER_PATTERN = Pattern.compile("\'(.?)\'");
+    private static final Pattern DELIMITER_PATTERN = Pattern.compile("\'(.*?)\'");
     private static final String CONFIG_FILE_PATH = "Config.txt";
+    private final Properties properties;
+    private ConfigurationDto config;
 
-    private Configuration config;
+    public ProjectConfigurationServiceImpl()
+    {
+        this.properties = new Properties();
+    }
 
-    public Configuration getConfig()
+    public ConfigurationDto getConfig()
     {
         if (config == null)
         {
@@ -36,48 +37,25 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
     }
 
     @Override
-    public Configuration init()
+    public ConfigurationDto init() throws ProjectConfigurationException
     {
         config = new ConfigurationDto();
+
         try
         {
-            Collection<String> lines = FileUtils.readLines(new File(CONFIG_FILE_PATH), "UTF-8");
-            for (String line : lines)
-            {
-                String[] params = line.split(SPLIT_CONFIGS_REGEX);
-                if (ArrayUtils.isEmpty(params) || params.length < 2)
-                {
-                    continue;
-                }
-
-                String configKey = params[0];
-                String configValue = params[1];
-                if (ConfigParams.DELIMITERS_CONFIG.getConfigKey().equals(configKey))
-                {
-                    initDelimiters(configValue);
-                    continue;
-                }
-                if (ConfigParams.ONLY_TEXT_FROM_HTML.getConfigKey().equals(configKey))
-                {
-                    initOnlyTextFromHtml(configValue);
-                    continue;
-                }
-                if (ConfigParams.PARSED_PAGE_FILE_PATH.getConfigKey().equals(configKey))
-                {
-                    initParsedPageFilePath(configValue);
-                    continue;
-                }
-                if (ConfigParams.RESULT_FILE_PATH.getConfigKey().equals(configKey))
-                {
-                    initResultFilePath(configValue);
-                }
-            }
+            properties.load(new FileInputStream(CONFIG_FILE_PATH));
         }
         catch (IOException ex)
         {
-            LOG.error("Project config file was not found.", ex);
-            throw new ProjectConfigurationException("Error occured during getting configurations", ex);
+            String errorMessage = "Error occurred during getting configurations";
+            LOG.error(errorMessage, ex);
+            throw new ProjectConfigurationException(errorMessage, ex);
         }
+
+        initDelimiters((String) properties.get(ConfigParams.DELIMITERS_CONFIG.getConfigKey()));
+        initOnlyTextFromHtml((String) properties.get(ConfigParams.ONLY_TEXT_FROM_HTML.getConfigKey()));
+        initParsedPageFilePath((String) properties.get(ConfigParams.PARSED_PAGE_FILE_PATH.getConfigKey()));
+        initResultFilePath((String) properties.get(ConfigParams.RESULT_FILE_PATH.getConfigKey()));
 
         return config;
     }
@@ -115,10 +93,10 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
 
     public enum ConfigParams
     {
-        DELIMITERS_CONFIG("config.delimiters"),
-        ONLY_TEXT_FROM_HTML("config.onlyTextFromHtml"),
-        PARSED_PAGE_FILE_PATH("config.parsedPageFilePath"),
-        RESULT_FILE_PATH("config.resultFilePath");
+        DELIMITERS_CONFIG("delimiters"),
+        ONLY_TEXT_FROM_HTML("onlyTextFromHtml"),
+        PARSED_PAGE_FILE_PATH("parsedPageFilePath"),
+        RESULT_FILE_PATH("resultFilePath");
 
         private final String configKey;
 
@@ -132,5 +110,4 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
             return configKey;
         }
     }
-
 }

@@ -1,8 +1,8 @@
 package com.dmi3.projects.gui.impl;
 
-import com.dmi3.projects.exceptions.AbstractException;
 import com.dmi3.projects.gui.api.ProjectGui;
 import com.dmi3.projects.services.api.BasicWebService;
+import com.dmi3.projects.services.impl.BasicWebServicesImpl;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import java.util.InputMismatchException;
@@ -14,9 +14,9 @@ public class ProjectGuiImpl implements ProjectGui
     private final BasicWebService basicWebService;
     private UrlValidator urlValidator;
 
-    public ProjectGuiImpl(BasicWebService basicWebService)
+    public ProjectGuiImpl()
     {
-        this.basicWebService = basicWebService;
+        this.basicWebService = new BasicWebServicesImpl();
         this.urlValidator = new UrlValidator();
     }
 
@@ -49,17 +49,26 @@ public class ProjectGuiImpl implements ProjectGui
                     String url = scanner.next();
                     while (!urlValidator.isValid(url))
                     {
+                        System.out.println("Please write valid url");
                         scanner.nextLine();
                         url = scanner.next();
                     }
                     try
                     {
                         Map<String, Integer> result = basicWebService.parseWebPage(url);
-                        System.out.println("Result:");
-                        result.keySet().forEach(word -> System.out.println(word + " - " + result.get(word)));
 
+                        System.out.println("Show result? (true/false):");
+                        Boolean booleanOption = null;
+                        while (booleanOption == null)
+                        {
+                            booleanOption = askBoolean(scanner);
+                        }
+                        if (booleanOption)
+                        {
+                            System.out.println("Result:");
+                            result.keySet().forEach(word -> System.out.println(word + " - " + result.get(word)));
+                        }
                         System.out.println("Save result to file? (true/false):");
-                        Boolean booleanOption;
                         booleanOption = null;
                         while (booleanOption == null)
                         {
@@ -68,9 +77,10 @@ public class ProjectGuiImpl implements ProjectGui
                         if (booleanOption)
                         {
                             basicWebService.saveResultToFile(result);
+                            System.out.println("Result was successfully saved.");
                         }
                     }
-                    catch (AbstractException ex)
+                    catch (RuntimeException ex)
                     {
                         System.out.println(ex.getMessage());
                     }

@@ -1,6 +1,6 @@
 package com.dmi3.projects.services.impl;
 
-import com.dmi3.projects.dto.Configuration;
+import com.dmi3.projects.dto.ConfigurationDto;
 import com.dmi3.projects.exceptions.FileServiceException;
 import com.dmi3.projects.exceptions.ProjectConfigurationException;
 import com.dmi3.projects.exceptions.TextProcessingException;
@@ -19,13 +19,13 @@ public class BasicWebServicesImpl implements BasicWebService
 {
     private final FileService fileService;
     private final TextProcessingService textProcessingService;
-    private final Configuration config;
+    private final ConfigurationDto config;
 
-    public BasicWebServicesImpl(FileService fileService, TextProcessingService textProcessingService, Configuration config)
+    public BasicWebServicesImpl()
     {
-        this.fileService = fileService;
-        this.textProcessingService = textProcessingService;
-        this.config = config;
+        this.config = new ProjectConfigurationServiceImpl().getConfig();
+        this.fileService = new FileServiceImpl(config);
+        this.textProcessingService = new TextProcessingServiceImpl(config);
     }
 
     @Override

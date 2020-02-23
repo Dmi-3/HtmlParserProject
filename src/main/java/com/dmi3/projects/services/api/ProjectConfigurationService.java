@@ -1,10 +1,10 @@
 package com.dmi3.projects.services.api;
 
-import com.dmi3.projects.dto.Configuration;
+import com.dmi3.projects.dto.ConfigurationDto;
 
 public interface ProjectConfigurationService
 {
-    Configuration init();
+    ConfigurationDto init();
 
-    Configuration getConfig();
+    ConfigurationDto getConfig();
 }
