@@ -28,6 +28,11 @@ public class BasicWebServicesImpl implements BasicWebService
         this.textProcessingService = new TextProcessingServiceImpl(config);
     }
 
+    public ConfigurationDto getConfig()
+    {
+        return config;
+    }
+
     @Override
     public Map<String, Integer> parseWebPage(String url) throws FileServiceException, ProjectConfigurationException,
             TextProcessingException
@@ -42,6 +47,17 @@ public class BasicWebServicesImpl implements BasicWebService
             return Collections.emptyMap();
         }
         return textProcessingService.processFile(file);
+    }
+
+    @Override
+    public Map<String, Integer> parseFile(String filePath)
+    {
+        if (StringUtils.isEmpty(filePath))
+        {
+            return Collections.emptyMap();
+        }
+
+        return textProcessingService.processFile(new File(filePath));
     }
 
     @Override

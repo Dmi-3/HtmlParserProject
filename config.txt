@@ -5,7 +5,7 @@ delimiters =  [' ', ',', '.', '!', '?', '"', ';', ':', '[', ']', '(', ')','\\n',
 onlyTextFromHtml = false
 
 # Path to file where downloaded and processing page will be saved
-parsedPageFilePath = Test.txt
+parsedPageFilePath = downloadPage.txt
 
 # Path to file where result of calculated uniq word
-resultFilePath = TestResult.txt
+resultFilePath = result.txt
