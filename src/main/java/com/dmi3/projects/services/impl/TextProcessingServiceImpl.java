@@ -47,7 +47,7 @@ public class TextProcessingServiceImpl implements TextProcessingService
         Pattern delimiterPattern = generateDelimiterRegex(delimiters);
 
         Map<String, Integer> processedWords = new HashMap<>();
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath()), StandardCharsets.UTF_8))
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath())))
         {
             String line;
             String lastWord = StringUtils.EMPTY;

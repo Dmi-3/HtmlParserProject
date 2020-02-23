@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -51,8 +52,10 @@ public class FileServiceImpl implements FileService
         }
 
         File file = new File(parsedFilePath);
+
         try
         {
+            FileUtils.write(file, StringUtils.EMPTY,StandardCharsets.UTF_8);
             FileUtils.copyURLToFile(new URL(url), file);
         }
         catch (IOException ex)
@@ -103,10 +106,9 @@ public class FileServiceImpl implements FileService
 
     public void saveFile(String text, File file, boolean append)
     {
-        try
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8))
         {
-            FileOutputStream fileOutputStream = new FileOutputStream(file, append);
-            fileOutputStream.write(text.trim().getBytes());
+            writer.write(text.trim());
         }
         catch (IOException ex)
         {
