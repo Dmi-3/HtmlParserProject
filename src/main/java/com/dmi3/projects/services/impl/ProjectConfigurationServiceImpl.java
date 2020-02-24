@@ -21,7 +21,7 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
     private static final String CONFIG_FILE_PATH = "config.properties";
     private final Gson gson;
 
-    public ProjectConfigurationServiceImpl()
+    ProjectConfigurationServiceImpl()
     {
         this.gson = new Gson();
     }
@@ -61,7 +61,7 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
         }
         if (StringUtils.isEmpty(configurationDto.getParsedPageFilePath()))
         {
-            throw new ProjectConfigurationServiceException("You must define url to page or local path to parsed file");
+            throw new ProjectConfigurationServiceException("You must define path to parsed file");
         }
 
         if (StringUtils.isEmpty(configurationDto.getParsedPageFilePath()))
@@ -80,7 +80,7 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
     {
         if (StringUtils.isEmpty(value))
         {
-            throw new ProjectConfigurationServiceException("Error in configuration file absent delimiters in configuration file!");
+            throw new ProjectConfigurationServiceException("Delimiters was not found in configuration file!");
         }
         try
         {
