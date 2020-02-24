@@ -1,26 +1,20 @@
 package com.dmi3.projects.services.impl;
 
 import com.dmi3.projects.dto.ConfigurationDto;
-import com.dmi3.projects.exceptions.TextProcessingException;
+import com.dmi3.projects.exceptions.TextProcessingServiceException;
 import com.dmi3.projects.services.api.TextProcessingService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 
 public class TextProcessingServiceImpl implements TextProcessingService
 {
@@ -33,7 +27,7 @@ public class TextProcessingServiceImpl implements TextProcessingService
     }
 
     @Override
-    public Map<String, Integer> processFile(File file) throws TextProcessingException
+    public Map<String, Integer> processFile(File file) throws TextProcessingServiceException
     {
         if (file == null)
         {
@@ -42,100 +36,49 @@ public class TextProcessingServiceImpl implements TextProcessingService
         Collection<String> delimiters = config.getDelimiters();
         if (CollectionUtils.isEmpty(delimiters))
         {
-            throw new TextProcessingException("Text cannot be processed because delimiters was not found in config files", null);
+            throw new TextProcessingServiceException("Text cannot be processed because delimiters was not found in config files");
         }
-        Pattern delimiterPattern = generateDelimiterRegex(delimiters);
 
         Map<String, Integer> processedWords = new HashMap<>();
+        final StringBuilder stringBuilder = new StringBuilder();
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(file.getPath())))
         {
-            String line;
-            String lastWord = StringUtils.EMPTY;
-            while ((line = reader.readLine()) != null)
+            int charNum = reader.read();
+            while (charNum != -1)
             {
-                if (StringUtils.isEmpty(line))
+                String charString = Character.toString((char) charNum);
+                if (config.getDelimiters().contains(charString))
                 {
-                    addUniqWord(lastWord.trim(), processedWords, delimiters);
+                    if (stringBuilder.length() > 0)
+                    {
+                        processWord(stringBuilder, processedWords);
+                    }
                 }
-                line = lastWord + line;
-                String[] words = delimiterPattern.split(line);
-                if (ArrayUtils.isEmpty(words))
+                else
                 {
-                    continue;
+                    stringBuilder.append(charString);
                 }
-                lastWord = words[words.length - 1];
-                for (int i = 0; i < words.length - 1; i++)
-                {
-                    addUniqWord(words[i].trim(), processedWords, delimiters);
-                }
+
+                charNum = reader.read();
             }
+            processWord(stringBuilder, processedWords);
         }
         catch (IOException ex)
         {
             String message = "Error occurred during processing text from file";
             LOG.error(message, ex);
-            throw new TextProcessingException(message, ex);
+            throw new TextProcessingServiceException(message, ex);
         }
 
         return processedWords;
     }
 
-    private Pattern generateDelimiterRegex(Collection<String> delimiters)
+    private void processWord(StringBuilder stringBuilder, Map<String, Integer> uniqWords)
     {
-        String regex = "\\s*" + delimiters.stream().map(elem -> "\\Q" + elem + "\\E").collect(Collectors.joining("|")) + "\\s*";
-        try
+        if (stringBuilder.length() > 0)
         {
-            return Pattern.compile(regex);
+            uniqWords.compute(stringBuilder.toString(), (uniqWord, count) -> count == null ? 1 : count + 1);
+            stringBuilder.setLength(0);
         }
-        catch (PatternSyntaxException ex)
-        {
-            throw new TextProcessingException("Error occurred during processing delimiters", null);
-        }
-    }
-
-    private void addUniqWord(String word, Map<String, Integer> uniqWords, Collection<String> delimiters)
-    {
-        if (StringUtils.isEmpty(word))
-        {
-            return;
-        }
-        int cnt = 0;
-        if (uniqWords.containsKey(word) && !delimiters.contains(word))
-        {
-            cnt = uniqWords.get(word);
-        }
-        uniqWords.put(word, ++cnt);
-    }
-
-    @Override
-    public Map<String, Integer> processText(String text)
-    {
-        if (StringUtils.isEmpty(text))
-        {
-            return Collections.emptyMap();
-        }
-
-        Collection<String> delimiters = config.getDelimiters();
-        if (CollectionUtils.isEmpty(delimiters))
-        {
-            throw new TextProcessingException("Text cannot be processed because delimiters was not found in config files", null);
-        }
-
-        String[] words = text.split('[' + String.join("", delimiters) + ']');
-        Map<String, Integer> uniqWords = new HashMap<>();
-        for (String word : words)
-        {
-            if (StringUtils.isEmpty(word))
-            {
-                continue;
-            }
-            int cnt = 0;
-            if (uniqWords.containsKey(word))
-            {
-                cnt = uniqWords.get(word);
-            }
-            uniqWords.put(word, ++cnt);
-        }
-        return uniqWords;
     }
 }

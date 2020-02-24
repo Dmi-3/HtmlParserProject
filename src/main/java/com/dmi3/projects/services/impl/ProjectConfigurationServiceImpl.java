@@ -1,46 +1,35 @@
 package com.dmi3.projects.services.impl;
 
 import com.dmi3.projects.dto.ConfigurationDto;
-import com.dmi3.projects.exceptions.ProjectConfigurationException;
+import com.dmi3.projects.exceptions.ProjectConfigurationServiceException;
 import com.dmi3.projects.services.api.ProjectConfigurationService;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 public class ProjectConfigurationServiceImpl implements ProjectConfigurationService
 {
     private static final Logger LOG = Logger.getLogger(ProjectConfigurationServiceImpl.class);
-    private static final Pattern DELIMITER_PATTERN = Pattern.compile("\'(.*?)\'");
-    private static final String CONFIG_FILE_PATH = "Config.txt";
-    private final Properties properties;
-    private ConfigurationDto config;
+    private static final String CONFIG_FILE_PATH = "config.properties";
+    private final Gson gson;
 
     public ProjectConfigurationServiceImpl()
     {
-        this.properties = new Properties();
-    }
-
-    public ConfigurationDto getConfig()
-    {
-        if (config == null)
-        {
-            return init();
-        }
-        return config;
+        this.gson = new Gson();
     }
 
     @Override
-    public ConfigurationDto init() throws ProjectConfigurationException
+    public ConfigurationDto getConfig() throws ProjectConfigurationServiceException
     {
-        config = new ConfigurationDto();
-
+        final Properties properties = new Properties();
         try
         {
             properties.load(new FileInputStream(CONFIG_FILE_PATH));
@@ -49,46 +38,60 @@ public class ProjectConfigurationServiceImpl implements ProjectConfigurationServ
         {
             String errorMessage = "Error occurred during getting configurations";
             LOG.error(errorMessage, ex);
-            throw new ProjectConfigurationException(errorMessage, ex);
+            throw new ProjectConfigurationServiceException(errorMessage, ex);
         }
 
-        initDelimiters((String) properties.get(ConfigParams.DELIMITERS_CONFIG.getConfigKey()));
-        initOnlyTextFromHtml((String) properties.get(ConfigParams.ONLY_TEXT_FROM_HTML.getConfigKey()));
-        initParsedPageFilePath((String) properties.get(ConfigParams.PARSED_PAGE_FILE_PATH.getConfigKey()));
-        initResultFilePath((String) properties.get(ConfigParams.RESULT_FILE_PATH.getConfigKey()));
+        final ConfigurationDto configurationDto = ConfigurationDto.newBuilder()
+                .delimiters(getDelimitersProperty(properties.getProperty(ConfigParams.DELIMITERS_CONFIG.getConfigKey())))
+                .onlyTextFromHtml(getOnlyTextFromHtmlProperty(properties.getProperty(ConfigParams.ONLY_TEXT_FROM_HTML.getConfigKey())))
+                .parsedPageFilePath(properties.getProperty(ConfigParams.PARSED_PAGE_FILE_PATH.getConfigKey()))
+                .resultFilePath(properties.getProperty(ConfigParams.RESULT_FILE_PATH.getConfigKey()))
+                .build();
 
-        return config;
+        validate((configurationDto));
+
+        return configurationDto;
     }
 
-    private void initDelimiters(String configValue)
+    private void validate(ConfigurationDto configurationDto) throws ProjectConfigurationServiceException
     {
-        Matcher matcher = DELIMITER_PATTERN.matcher(configValue);
-        Collection<String> delimiters = new ArrayList<>();
-        while (matcher.find())
+        if (configurationDto.getDelimiters().isEmpty())
         {
-            String delimiter = matcher.group(1);
-            if (StringUtils.isEmpty(delimiter))
-            {
-                continue;
-            }
-            delimiters.add(delimiter);
+            throw new ProjectConfigurationServiceException("You must define minimum one delimiter");
         }
-        config.setDelimiters(delimiters);
+        if (StringUtils.isEmpty(configurationDto.getParsedPageFilePath()))
+        {
+            throw new ProjectConfigurationServiceException("You must define url to page or local path to parsed file");
+        }
+
+        if (StringUtils.isEmpty(configurationDto.getParsedPageFilePath()))
+        {
+            throw new ProjectConfigurationServiceException("Path to input parsedFile is incorrect");
+        }
+
     }
 
-    private void initOnlyTextFromHtml(String value)
+    private boolean getOnlyTextFromHtmlProperty(String value)
     {
-        config.setOnlyTextFromHtml(Boolean.parseBoolean(value));
+        return Boolean.parseBoolean(value);
     }
 
-    private void initResultFilePath(String path)
+    private Collection<String> getDelimitersProperty(String value)
     {
-        config.setResultFilePath(path);
-    }
-
-    private void initParsedPageFilePath(String path)
-    {
-        config.setParsedPageFilePath(path);
+        if (StringUtils.isEmpty(value))
+        {
+            throw new ProjectConfigurationServiceException("Error in configuration file absent delimiters in configuration file!");
+        }
+        try
+        {
+            return gson.fromJson(value, new TypeToken<Set<String>>()
+            {
+            }.getType());
+        }
+        catch (JsonSyntaxException ex)
+        {
+            throw new ProjectConfigurationServiceException("Error in configuration file Delimiters written in incorrect format", ex);
+        }
     }
 
     public enum ConfigParams

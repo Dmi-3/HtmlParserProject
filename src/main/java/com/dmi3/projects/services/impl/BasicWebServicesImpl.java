@@ -1,9 +1,9 @@
 package com.dmi3.projects.services.impl;
 
 import com.dmi3.projects.dto.ConfigurationDto;
-import com.dmi3.projects.exceptions.FileServiceException;
-import com.dmi3.projects.exceptions.ProjectConfigurationException;
-import com.dmi3.projects.exceptions.TextProcessingException;
+import com.dmi3.projects.exceptions.FileServiceServiceException;
+import com.dmi3.projects.exceptions.ProjectConfigurationServiceException;
+import com.dmi3.projects.exceptions.TextProcessingServiceException;
 import com.dmi3.projects.services.api.BasicWebService;
 import com.dmi3.projects.services.api.FileService;
 import com.dmi3.projects.services.api.TextProcessingService;
@@ -34,8 +34,8 @@ public class BasicWebServicesImpl implements BasicWebService
     }
 
     @Override
-    public Map<String, Integer> parseWebPage(String url) throws FileServiceException, ProjectConfigurationException,
-            TextProcessingException
+    public Map<String, Integer> parseWebPage(String url) throws FileServiceServiceException, ProjectConfigurationServiceException,
+            TextProcessingServiceException
     {
         if (StringUtils.isEmpty(url))
         {

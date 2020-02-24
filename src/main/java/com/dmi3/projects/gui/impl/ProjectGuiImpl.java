@@ -1,5 +1,6 @@
 package com.dmi3.projects.gui.impl;
 
+import com.dmi3.projects.exceptions.AbstractServiceException;
 import com.dmi3.projects.gui.api.ProjectGui;
 import com.dmi3.projects.services.api.BasicWebService;
 import com.dmi3.projects.services.impl.BasicWebServicesImpl;
@@ -80,7 +81,7 @@ public class ProjectGuiImpl implements ProjectGui
             Map<String, Integer> result = basicWebService.parseWebPage(url);
             processResult(result, scanner);
         }
-        catch (RuntimeException ex)
+        catch (AbstractServiceException ex)
         {
             System.out.println(ex.getMessage());
         }

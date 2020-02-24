@@ -1,7 +1,7 @@
 package com.dmi3.projects.services.impl;
 
 import com.dmi3.projects.dto.ConfigurationDto;
-import com.dmi3.projects.exceptions.FileServiceException;
+import com.dmi3.projects.exceptions.FileServiceServiceException;
 import com.dmi3.projects.services.api.FileService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +30,7 @@ public class FileServiceImpl implements FileService
     }
 
     @Override
-    public File downloadPage(String url) throws FileServiceException
+    public File downloadPage(String url) throws FileServiceServiceException
     {
         if (StringUtils.isEmpty(url))
         {
@@ -55,14 +55,14 @@ public class FileServiceImpl implements FileService
 
         try
         {
-            FileUtils.write(file, StringUtils.EMPTY,StandardCharsets.UTF_8);
+            FileUtils.write(file, StringUtils.EMPTY, StandardCharsets.UTF_8);
             FileUtils.copyURLToFile(new URL(url), file);
         }
         catch (IOException ex)
         {
             String errorMessage = "Error occurred during download page";
             LOG.error(errorMessage, ex);
-            throw new FileServiceException(errorMessage, ex);
+            throw new FileServiceServiceException(errorMessage, ex);
         }
 
         boolean onlyTextFromHtml = config.isOnlyTextFromHtml();
@@ -90,7 +90,7 @@ public class FileServiceImpl implements FileService
         return stringBuilder.toString();
     }
 
-    private Document getDomContentFromFile(File file) throws FileServiceException
+    private Document getDomContentFromFile(File file) throws FileServiceServiceException
     {
         try
         {
@@ -100,7 +100,7 @@ public class FileServiceImpl implements FileService
         {
             String errorMessage = "Error occurred during reading local file: " + file.getPath();
             LOG.error(errorMessage, ex);
-            throw new FileServiceException(errorMessage, ex);
+            throw new FileServiceServiceException(errorMessage, ex);
         }
     }
 
@@ -114,7 +114,7 @@ public class FileServiceImpl implements FileService
         {
             String errorMessage = "File was not save. Error occurred during saving content to file";
             LOG.error(errorMessage, ex);
-            throw new FileServiceException(errorMessage, ex);
+            throw new FileServiceServiceException(errorMessage, ex);
         }
     }
 }
