@@ -138,7 +138,6 @@ public class ProjectGuiImpl implements ProjectGui
         catch (InputMismatchException ex)
         {
             System.out.println("Please write number value");
-            scanner.nextLine();
         }
 
         return null;

@@ -27,7 +27,7 @@ This function allow you to process any web page, but make sure you have an inter
 
 <b>Example of a correct</b>: https://www.simbirsoft.com
 ##### Process file
-This function allow you to process any text file in format UTF-8 in your computer.
+This function allow you to process local file (encoding UTF-8) on your computer.
 
 ##### Result of program
 The result of successfully worked program is a set of uniq word/count pairs like below:
